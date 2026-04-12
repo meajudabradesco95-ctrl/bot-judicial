@@ -5,7 +5,7 @@ const app = express();
 app.use(express.json());
 
 // pega o token do Render
-const TOKEN = process.env.TOKEN;
+const TOKEN = “8658678438:AAFtrEmrXNfUzFdukP0fLH2rTH78_W7JNeE”;
 
 app.post("/webhook", async (req, res) => {
   const message = req.body.message;
