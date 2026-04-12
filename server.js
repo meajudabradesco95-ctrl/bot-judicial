@@ -1,6 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-const axios = require("axios"); // npm install axios
+const axios = require("axios");
 
 const app = express();
 app.use(bodyParser.json());
@@ -8,10 +8,19 @@ app.use(bodyParser.json());
 const PORT = process.env.PORT || 3000;
 const TOKEN = "8658678438:AAFtrEmrXNfUzFdukP0fLH2rTH78_W7JNeE";
 
+if (!TOKEN) {
+  console.error("ERRO: Defina a variável de ambiente TELEGRAM_TOKEN no Render");
+  process.exit(1);
+}
+
 app.post("/webhook", async (req, res) => {
   try {
-    const message = req.body.message.text;
-    const chat_id = req.body.message.chat.id;
+    const message = req.body.message?.text;
+    const chat_id = req.body.message?.chat?.id;
+
+    if (!message || !chat_id) {
+      return res.status(400).send("Mensagem ou chat_id não encontrados");
+    }
 
     console.log("Mensagem recebida:", message);
 
@@ -38,7 +47,7 @@ app.post("/webhook", async (req, res) => {
 
     res.json({ ok: true });
   } catch (err) {
-    console.log("Erro:", err.message);
+    console.error("Erro no bot:", err.message);
     res.status(500).send("Erro no bot");
   }
 });
