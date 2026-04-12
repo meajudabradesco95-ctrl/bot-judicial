@@ -3,7 +3,7 @@ const app = express();
 
 app.use(express.json());
 
-const TOKEN = "COLE_SEU_TOKEN_AQUI";
+const TOKEN = "8658678438:AAFtrEmrXNfUzFdukP0fLH2rTH78_W7JNeE";
 
 app.post("/webhook", async (req, res) => {
   const message = req.body.message;
