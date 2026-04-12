@@ -14,7 +14,7 @@ app.post("/webhook", async (req, res) => {
     const message = req.body.message;
     const chat_id = req.body.chat_id;
 
-    console.log("Mensagem recebida:", message);
+    console.log("Mensagem:", message);
 
     await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
       method: "POST",
@@ -28,9 +28,9 @@ app.post("/webhook", async (req, res) => {
     });
 
     res.json({ ok: true });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("Erro");
+  } catch (err) {
+    console.log("Erro:", err);
+    res.status(500).send("Erro no bot");
   }
 });
 
