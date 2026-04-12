@@ -3,7 +3,7 @@ const app = express();
 
 app.use(express.json());
 
-const TOKEN = process.env.TOKEN;
+const TOKEN = “8658678438:AAFtrEmrXNfUzFdukP0fLH2rTH78_W7JNeE”;
 
 app.get("/", (req, res) => {
   res.send("Bot rodando com sucesso");
