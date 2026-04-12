@@ -1,17 +1,19 @@
 const express = require("express");
+const fetch = require("node-fetch");
 const app = express();
 
 app.use(express.json());
 
-const TOKEN = "8658678438:AAFtrEmrXNfUzFdukP0fLH2rTH78_W7JNeE";
+// pega o token do Render (variável de ambiente)
+const TOKEN = process.env.TOKEN;
 
 app.post("/webhook", async (req, res) => {
   const message = req.body.message;
   const chat_id = req.body.chat_id;
 
-  console.log("Mensagem recebida:", message);
+  console.log("Mensagem:", message);
 
-  // resposta para o Telegram
+  // envia resposta para o Telegram
   await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
     method: "POST",
     headers: {
@@ -19,7 +21,7 @@ app.post("/webhook", async (req, res) => {
     },
     body: JSON.stringify({
       chat_id: chat_id,
-      text: "Recebi sua mensagem: " + message
+      text: "Recebi: " + message
     })
   });
 
