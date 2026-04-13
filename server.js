@@ -18,19 +18,17 @@ app.post("/webhook", async (req, res) => {
 
   console.log("Mensagem:", message);
 
-  // COMANDO /consulta
   if (message.startsWith("/consulta")) {
     const numero = message.split(" ")[1];
 
     if (!numero) {
       await axios.post(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
         chat_id,
-        text: "Envie o número do processo. Ex: /consulta 1234567-89.2023.8.26.0100"
+        text: "Envie o número do processo."
       });
       return res.sendStatus(200);
     }
 
-    // resposta inicial
     await axios.post(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
       chat_id,
       text: "🔎 Consultando processo..."
@@ -38,33 +36,33 @@ app.post("/webhook", async (req, res) => {
 
     try {
       const browser = await puppeteer.launch({
-        args: ["--no-sandbox", "--disable-setuid-sandbox"]
+        headless: "new",
+        args: [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--disable-gpu"
+        ]
       });
 
       const page = await browser.newPage();
 
-      // site do tribunal
       await page.goto("https://esaj.tjsp.jus.br/cpopg/open.do", {
         waitUntil: "networkidle2"
       });
 
-      // campo do número
       await page.type("#numeroDigitoAnoUnificado", numero);
 
-      // clicar em consultar
       await page.click("#botaoConsultarProcessos");
 
-      // aguardar carregar
-      await page.waitForTimeout(5000);
+      await page.waitForTimeout(6000);
 
-      // pegar texto da página
       const resultado = await page.evaluate(() => {
         return document.body.innerText;
       });
 
       await browser.close();
 
-      // limitar resposta (telegram trava com texto grande)
       const textoFinal = resultado.slice(0, 3500);
 
       await axios.post(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
@@ -73,11 +71,11 @@ app.post("/webhook", async (req, res) => {
       });
 
     } catch (erro) {
-      console.log("Erro:", erro.message);
+      console.log("Erro Puppeteer:", erro.message);
 
       await axios.post(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
         chat_id,
-        text: "❌ Erro ao consultar o processo"
+        text: "❌ Erro ao consultar processo"
       });
     }
   }
