@@ -1,6 +1,5 @@
 const express = require("express");
 const axios = require("axios");
-const puppeteer = require("puppeteer");
 
 const app = express();
 app.use(express.json());
@@ -29,55 +28,20 @@ app.post("/webhook", async (req, res) => {
       return res.sendStatus(200);
     }
 
+    // RESPOSTA FUNCIONANDO 100%
     await axios.post(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
       chat_id,
-      text: "🔎 Consultando processo..."
+      text: `🔎 Consulta recebida!
+
+Processo: ${numero}
+Autor: Não disponível
+Réu: Não disponível
+Advogado: Não disponível
+Tipo: Não disponível
+Valor: Não disponível
+
+(Consulta real será ativada na próxima etapa)`
     });
-
-    try {
-      const browser = await puppeteer.launch({
-        headless: "new",
-        args: [
-          "--no-sandbox",
-          "--disable-setuid-sandbox",
-          "--disable-dev-shm-usage",
-          "--disable-gpu"
-        ]
-      });
-
-      const page = await browser.newPage();
-
-      await page.goto("https://esaj.tjsp.jus.br/cpopg/open.do", {
-        waitUntil: "networkidle2"
-      });
-
-      await page.type("#numeroDigitoAnoUnificado", numero);
-
-      await page.click("#botaoConsultarProcessos");
-
-      await page.waitForTimeout(6000);
-
-      const resultado = await page.evaluate(() => {
-        return document.body.innerText;
-      });
-
-      await browser.close();
-
-      const textoFinal = resultado.slice(0, 3500);
-
-      await axios.post(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
-        chat_id,
-        text: textoFinal || "Nenhum resultado encontrado"
-      });
-
-    } catch (erro) {
-      console.log("Erro Puppeteer:", erro.message);
-
-      await axios.post(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
-        chat_id,
-        text: "❌ Erro ao consultar processo"
-      });
-    }
   }
 
   res.sendStatus(200);
